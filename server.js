@@ -11,16 +11,22 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 const app = express();
-app.use(cors({ origin: process.env.CLIENT_URL }));
+app.use(cors({ origin: '*' }));
 app.use(express.json());
 
 app.use('/api/projects', projectRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/auth', authRoutes);
 
+console.log('MONGO_URI exists:', !!process.env.MONGO_URI);
+
 mongoose.connect(process.env.MONGO_URI, {
-  serverSelectionTimeoutMS: 5000,
-  family: 4
+  serverSelectionTimeoutMS: 10000,
 })
-  .then(() => app.listen(process.env.PORT || 5000, () => console.log('Server running on port 5000')))
-  .catch(err => console.log(err.message));
+  .then(() => {
+    console.log('MongoDB connected');
+    app.listen(process.env.PORT || 5000, () => console.log('Server running on port 5000'));
+  })
+  .catch(err => {
+    console.log('MongoDB connection error:', err.message);
+  });
